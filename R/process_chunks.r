@@ -1,40 +1,48 @@
 process_chunk_pdf <- function(options) {
-  code <- paste(options$code, collapse = "")
 
-  if (options$escape) code <- escape_latex(code)
+  code <- paste(options$code, collapse = "\n")
 
-  # if the format is PDF
-  start <- paste0("\\reviewerid{", options$label, "}{")
+  if(options$escape) code <- escape_latex(code)
 
-  paste(start, "\n", code, "}", sep = "\n")
+    # if the format is PDF
+    start <- paste0("\\reviewer{", options$label, "}{")
+
+    paste(start, "\n" , code , "}", sep = "\n")
+
 }
 
 process_chunk_txt <- function(options) {
-  code <- paste(options$code, collapse = "")
+  code <- paste(options$code, collapse = " ")
 
-  comment_label <- options$label
+    comment_label <- options$label
 
-  if (grepl("unnamed-chunk", comment_label)) {
-    comment_label <-
-      as.numeric(paste(unlist(
-        stringr::str_extract_all(comment_label, "[0-9]")
-      ), collapse = ""))
-  }
+    if(grepl("unnamed-chunk", comment_label)) {
+      comment_label <-
+        as.numeric(paste(unlist(
+          stringr::str_extract_all(comment_label, "[0-9]")
+        ), collapse = ""))
+    }
 
-  glue::glue("____\nCOMMENT {comment_label}\n\n -\nRC:\n{code}\n\n")
+    glue::glue("____\nCOMMENT {comment_label}\n\n -\nRC:\n{code}\n\n")
+
 }
 
 process_chunk_docx <- function(options) {
-  code <- paste(options$code, collapse = "")
 
-  comment_label <- options$label
+  code <- options$code
+  code[nchar(code) > 0] <- paste0("**",code[nchar(code) > 0],"**")
 
-  if (grepl("unnamed-chunk", comment_label)) {
-    comment_label <-
-      as.numeric(paste(unlist(
-        stringr::str_extract_all(comment_label, "[0-9]")
-      ), collapse = ""))
-  }
+  code <- paste(code, collapse = "\n")
 
-  glue::glue("____\n<span class='underline'>**COMMENT {comment_label}**</span>\n\n \n**RC:\n{code}**\n\n")
+    comment_label <- options$label
+
+    if(grepl("unnamed-chunk", comment_label)) {
+      comment_label <-
+        as.numeric(paste(unlist(
+          stringr::str_extract_all(comment_label, "[0-9]")
+        ), collapse = ""))
+    }
+
+    glue::glue("____\n<span class='underline'>**COMMENT {comment_label}**</span>\n\n \n**RC:**\n{code}</br>\n\n")
+
 }
